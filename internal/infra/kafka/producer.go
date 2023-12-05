@@ -18,19 +18,15 @@ func (p *Producer) Publish(msg interface{}, key []byte, topic string) error {
 		return err
 	}
 
-	message := ckafka.Message{
-		TopicPartition: ckafka.TopicPartition{
-			Topic:     &topic,
-			Partition: ckafka.PartitionAny,
-		},
-		Key:   key,
-		Value: msg.([]byte),
+	message := &ckafka.Message{
+		TopicPartition: ckafka.TopicPartition{Topic: &topic, Partition: ckafka.PartitionAny},
+		Key:            key,
+		Value:          msg.([]byte),
 	}
 
-	err = producer.Produce(&message, nil)
+	err = producer.Produce(message, nil)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

@@ -9,14 +9,11 @@ func TransformInput(input dto.TradeInput) *entity.Order {
 	asset := entity.NewAsset(input.AssetID, input.AssetID, 1000)
 	investor := entity.NewInvestor(input.InvestorID)
 	order := entity.NewOrder(input.OrderID, investor, asset, input.Shares, input.CurrentShares, input.Price, input.OrderType)
-
 	if input.CurrentShares > 0 {
 		assetPosition := entity.NewInvestorAssetPosition(input.AssetID, input.CurrentShares)
 		investor.AddAssetPosition(assetPosition)
 	}
-
 	return order
-
 }
 
 func TransformOutput(order *entity.Order) *dto.OrderOutput {
@@ -31,18 +28,17 @@ func TransformOutput(order *entity.Order) *dto.OrderOutput {
 	}
 
 	var transactionsOutput []*dto.TransactionOutput
-	for _, transaction := range order.Transactions {
-		transactionsOutput = append(transactionsOutput, &dto.TransactionOutput{
-			TransactionID: transaction.ID,
-			BuyerID:       transaction.BuyingOrder.ID,
-			SellerID:      transaction.SellingOrder.ID,
-			AssetID:       transaction.SellingOrder.Asset.ID,
-			Price:         transaction.Price,
-			Shares:        transaction.SellingOrder.Shares - transaction.SellingOrder.PendingShares,
-		})
+	for _, t := range order.Transactions {
+		transactionOutput := &dto.TransactionOutput{
+			TransactionID: t.ID,
+			BuyerID:       t.BuyingOrder.Investor.ID,
+			SellerID:      t.SellingOrder.Investor.ID,
+			AssetID:       t.SellingOrder.Asset.ID,
+			Price:         t.Price,
+			Shares:        t.SellingOrder.Shares - t.SellingOrder.PendingShares,
+		}
+		transactionsOutput = append(transactionsOutput, transactionOutput)
 	}
-
 	output.TransactionOutput = transactionsOutput
-
 	return output
 }

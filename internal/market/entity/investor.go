@@ -24,7 +24,6 @@ func (i *Investor) UpdateAssetPosition(assetID string, qtdShares int) {
 	} else {
 		assetPosition.Shares += qtdShares
 	}
-
 }
 
 func (i *Investor) GetAssetPosition(assetID string) *InvestorAssetPosition {

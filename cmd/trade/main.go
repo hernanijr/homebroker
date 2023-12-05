@@ -24,7 +24,7 @@ func main() {
 	configMap := &ckafka.ConfigMap{
 		"bootstrap.servers": "host.docker.internal:9094",
 		"group.id":          "myGroup",
-		"auto.offset.reset": "earliest",
+		"auto.offset.reset": "latest",
 	}
 
 	producer := kafka.NewKafkaProducer(configMap)
@@ -39,12 +39,12 @@ func main() {
 		for msg := range kafkaMsgChan {
 			wg.Add(1)
 			fmt.Println(string(msg.Value))
-			trandeInput := dto.TradeInput{}
-			err := json.Unmarshal(msg.Value, &trandeInput)
+			tradeInput := dto.TradeInput{}
+			err := json.Unmarshal(msg.Value, &tradeInput)
 			if err != nil {
 				panic(err)
 			}
-			order := transformer.TransformInput(trandeInput)
+			order := transformer.TransformInput(tradeInput)
 			ordersIn <- order
 		}
 	}()
@@ -52,6 +52,7 @@ func main() {
 	for res := range ordersOut {
 		output := transformer.TransformOutput(res)
 		outputJson, err := json.MarshalIndent(output, "", "   ")
+		fmt.Println(string(outputJson))
 		if err != nil {
 			fmt.Println(err)
 		}

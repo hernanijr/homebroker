@@ -21,9 +21,11 @@ func (oq *OrderQueue) Push(x interface{}) {
 }
 
 func (oq *OrderQueue) Pop() interface{} {
-	o := oq.Orders[len(oq.Orders)-1]
-	oq.Orders = oq.Orders[:len(oq.Orders)-1]
-	return o
+	old := oq.Orders
+	n := len(old)
+	item := old[n-1]
+	oq.Orders = old[0 : n-1]
+	return item
 }
 
 func NewOrderQueue() *OrderQueue {
